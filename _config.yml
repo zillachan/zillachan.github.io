@@ -1,16 +1,16 @@
 # Site settings
-title: Darkness is coming
+title: Zilla
 header-img: "img/green.jpg"
-tagline: "cn"  
-description: "Zilla|Darkness is coming"  
+tagline: "en"  
+description: "Zilla|Darkness is coming..."  
 baseurl: ""
 url: "http://tec.zilla.pub"  
 
 # About/contact
 owner: 
-  name: " Zilla"
+  name: "Zilla"
   email: zillachan@gmail.com
-  bio: "Darkness is coming"
+  bio: "Darkness is coming..."
 
 # Data
 gavatar: http://dreamofbook.qiniudn.com/Az..png
