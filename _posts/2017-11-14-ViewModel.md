@@ -13,7 +13,7 @@ UI controller主要是用来展示数据，响应用户动作或者处理操作�
 从UI controller的逻辑中分离出View data的所有权会更加简单和高效。
 
 ## 实现一个ViewMode
-Architecture Components 为UI controller提供了ViewModel的帮助类，这些帮助类负责为UI准备数据。在configuration change的时候，这些`ViewModel`对象会被自动保持住，这样当Activity或者fragment重新创建实例的时候，这些数据可以立刻可用，例如：如果你需要在你得App中展示用户List，分配获取和保存用户list的责任给一个ViewModel，不要给Activity或者Fragment，就像下面的几行代码说明的：
+Architecture Components 为UI controller提供了ViewModel的帮助类，这些帮助类负责为UI准备数据。在configuration change的时候，这些`ViewModel`对象会被自动保持住，这样当Activity或者fragment重新创建实例的时候，这些数据可以立刻可用，例如：如果你需要在你得App中展示用户List，分配获取和保存用户list的责任给一个ViewModel，不要给Activity或者Fragment，如下面几行代码：
 
 ```
 public class MyViewModel extends ViewModel {
@@ -59,9 +59,9 @@ ViewModel 对象被设计比指定的View的实例或者LifecycleOwners活的更
 你通常会在系统首次调用Activity的onCreate()方法的时候请求一个ViewModel，在Activity的生命周期中，系统也许会调用多次onCreate()方法，就像设备屏幕旋转的时候，ViewModel从首次调用的时候存在，一直到Activity finish并destroy。
 
 ## Fragment之间共享数据
-It's very common that two or more fragments in an activity need to communicate with each other. Imagine a common case of master-detail fragments, where you have a fragment in which the user selects an item from a list and another fragment that displays the contents of the selected item. This case is never trivial as both fragments need to define some interface description, and the owner activity must bind the two together. In addition, both fragments must handle the scenario where the other fragment is not yet created or visible.
+一个Activity中的各个Fragment之间通信时间很正常的事情，试想一个常规的master-detail fragments场景，在一个Fragment中，用户选择了一个菜单项，另一个Fragment显示该菜单项的详细内容，这个案例并不简单，应为两个Fragment都要定义一些接口，并且宿主Activity需要实现这两个接口，额外地，这两个Fragment必须处理这些其他Fragment没有创建或者不可见的情况。
 
-This common pain point can be addressed by using ViewModel objects. These fragments can share a ViewModel using their activity scope to handle this communication, as illustrated by the following sample code:
+这些痛点可以通过使用ViewModel来处理，这些Fragment可以通过Activity范围内的共享一个ViewModel来处理通信，如下面几行代码：
 
 ```
 public class SharedViewModel extends ViewModel {
@@ -98,30 +98,33 @@ public class DetailFragment extends Fragment {
 }
 
 ```
-Notice that both fragments use getActivity() when getting the ViewModelProvider. As a result, both fragments receive the same SharedViewModel instance, which is scoped to the activity.
+需要注意的是，两个Fragment在获取ViewModelProvider的时候通过getActivity()，所以两个Fragment获取到了相同的SharedViewModel实例，这个实例是被Activity约束的。
 
-This approach offers the following benefits:
+这种方法有如下的好处:
 
-The activity does not need to do anything, or know anything about this communication.
-Fragments don't need to know about each other besides the SharedViewModel contract. If one of the fragments disappears, the other one keeps working as usual.
-Each fragment has its own lifecycle, and is not affected by the lifecycle of the other one. If one fragment replaces the other one, the UI continues to work without any problems.
+- Activity不需要知道任何这两个Fragment之间的通信
+- Fragment 之间除了SharedViewModel不需要直到彼此，如果其中一个Fragment消失了，其他的Fragment仍然可以正常工作
+- 每个Fragment有自己的生命周期，并且不受其他Fragment的影响，如果一个Fragment替换了另外一个Fragment，UI 仍然可以正常工作。
 
 ## 使用ViewModel替换Loader
-Loader classes like CursorLoader are frequently used to keep the data in an app's UI in sync with a database. You can use ViewModel, with a few other classes, to replace the loader. Using a ViewModel separates your UI controller from the data-loading operation, which means you have fewer strong references between classes.
+像CursorLoader这样的Loader类常常被用来保持同步UI和数据库之间的数据，你可以使用ViewModel附带一些其他的类来替换Loader。使用ViewModel来将你的UI controller从数据加载操作中分离出来，这样就意味着他们之间的引用关系会更少。
 
-In one common approach to using loaders, an app might use a CursorLoader to observe the contents of a database. When a value in the database changes, the loader automatically triggers a reload of the data and updates the UI:
+在一个常规的使用Loader过程中，App可能使用CursorLoader来观察数据库的内容，当数据库内容发生改变的时候，Loader自动触发一个数据的reload动作去更新UI：
 ![viewmodel-loader](http://blog-1251624639.file.myqcloud.com/viewmodel-loader.png)
 
-Figure 2. Loading data with loaders
-ViewModel works with Room and LiveData to replace the loader. The ViewModel ensures that the data survives a device configuration change. Room informs your LiveData when the database changes, and the LiveData, in turn, updates your UI with the revised data.
+图 2. 使用Loader加载数据
+
+ViewModel和Room，LiveData一起工作来替换Loader，ViewModel确保设备configuration change后数据一直存在，当数据库发生改变的时候，Room通知LiveData，LiveData反过来使用修改后的数据更新UI。
 
 ![viewmodel-replace-loader](http://blog-1251624639.file.myqcloud.com/viewmodel-replace-loader.png)
-Figure 3. Loading data with ViewModel
-This blog post describes how to use a ViewModel with a LiveData to replace an AsyncTaskLoader.
+图 3. 通过ViewModel加载数据
 
-As your data grows more complex, you might choose to have a separate class just to load the data. The purpose of ViewModel is to encapsulate the data for a UI controller to let the data survive configuration changes. For information about how to load, persist, and manage data across configuration changes, see Saving UI State.
+这篇文章描述了如何使用ViewModel和LiveData来替换AsyncTaskLoader。
 
-The Guide to Android App Architecture suggests building a repository class to handle these functions.
+当你的数据变得越来越复杂，你可能会选择使用一个仅仅用来加载数据的单独的类，ViewModel的目标就是概括UI Controller中的数据，发生configuration changes时让数据一直存在。更多关于如何加载，持久化和跨configuration change数据管理，可以参考[Saving UI State](https://developer.android.com/topic/libraries/architecture/saving-state.html)
+
+
+The [Guide to Android App Architecture](https://developer.android.com/topic/libraries/architecture/guide.html#fetching_data) 建议构建一个repository类来处理这些事情。
 
 谷歌官方文档参阅[这里](https://developer.android.com/topic/libraries/architecture/viewmodel.html)
 
