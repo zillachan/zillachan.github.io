@@ -126,5 +126,5 @@ ViewModel和Room，LiveData一起工作来替换Loader，ViewModel确保设备co
 
 The [Guide to Android App Architecture](https://developer.android.com/topic/libraries/architecture/guide.html#fetching_data) 建议构建一个repository类来处理这些事情。
 
-谷歌官方文档参阅[这里](https://developer.android.com/topic/libraries/architecture/viewmodel.html)
+谷歌官方文档[ViewModel](https://developer.android.com/topic/libraries/architecture/viewmodel.html)
 
